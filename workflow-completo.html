@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flujo Completo - Fiscal.ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .step {
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px 35px;
+            min-width: 320px;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .step.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .step-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+            margin-top: 10px;
+        }
+        
+        .step-desc {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .step-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #cbd5e0;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .decision-box {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            border: none;
+            transform: rotate(-1deg);
+        }
+        
+        .decision-box:hover {
+            transform: rotate(0deg) translateY(-5px);
+        }
+        
+        .decision-box .step-number {
+            background: #dc2626;
+        }
+        
+        .decision-box .step-title,
+        .decision-box .step-desc {
+            color: white;
+        }
+        
+        .branches {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .branch {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .branch-label {
+            background: white;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .branch-label.success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .branch-label.error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .success-step {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #10b98115 0%, #059e6915 100%);
+        }
+        
+        .success-step .step-number {
+            background: #10b981;
+        }
+        
+        .error-step {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #ef444415 0%, #dc262615 100%);
+        }
+        
+        .error-step .step-number {
+            background: #ef4444;
+        }
+        
+        .final-step {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: white;
+            border: none;
+            font-size: 1.2em;
+            padding: 30px 40px;
+        }
+        
+        .final-step .step-title,
+        .final-step .step-desc {
+            color: white;
+        }
+        
+        .final-step .step-number {
+            background: white;
+            color: #8b5cf6;
+        }
+        
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 350px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .info-panel.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .info-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .info-content {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-receipt text-3xl text-indigo-600 mr-3"></i>
+                    <span class="text-2xl font-bold text-gray-900">Fiscal<span class="text-indigo-600">.ai</span></span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 transition">Inicio</a>
+                    <a href="workflow.html" class="text-indigo-600 font-semibold">Cómo funciona</a>
+                    <a href="upload.html" class="text-gray-700 hover:text-indigo-600 transition">Subir facturas</a>
+                    <a href="dashboard.html" class="text-gray-700 hover:text-indigo-600 transition">Dashboard</a>
+                    <a href="index.html#pricing" class="text-gray-700 hover:text-indigo-600 transition">Precios</a>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="workflow-simple.html" class="text-indigo-600 hover:text-indigo-700 transition font-medium">
+                        <i class="fas fa-bolt mr-1"></i>Ver flujo simple
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="index.html" class="hover:text-indigo-600">Inicio</a>
+            <i class="fas fa-chevron-right mx-2 text-xs"></i>
+            <a href="workflow.html" class="hover:text-indigo-600">Cómo funciona</a>
+            <i class="fas fa-chevron-right mx-2 text-xs"></i>
+            <span class="text-gray-900 font-medium">Flujo completo</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-white border-b py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                🚀 Flujo Completo del Proceso
+            </h1>
+            <p class="text-xl text-gray-600">
+                Diagrama detallado con todos los pasos técnicos, validaciones y casos de error
+            </p>
+            <p class="text-sm text-gray-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>
+                Haz click en cada paso para ver más información
+            </p>
+        </div>
+    </div>
+
+    <!-- Flow Diagram -->
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flow-container">
+                <!-- Paso INICIO -->
+                <div class="step" onclick="showInfo('start', this)">
+                    <div class="step-number">⚡</div>
+                    <div class="step-icon">🏠</div>
+                    <div class="step-title">Usuario entra a la app</div>
+                    <div class="step-desc">Pantalla principal: Subir facturas o Ver trimestre</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Paso 1 -->
+                <div class="step" onclick="showInfo('upload', this)">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">📤</div>
+                    <div class="step-title">Upload de facturas</div>
+                    <div class="step-desc">Drag & drop • PDF/JPG/PNG • Seleccionar archivos</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Decisión: Formato válido -->
+                <div class="step decision-box" onclick="showInfo('validate', this)">
+                    <div class="step-number">?</div>
+                    <div class="step-icon">✅</div>
+                    <div class="step-title">¿Formato válido?</div>
+                    <div class="step-desc">Validar: PDF/JPG/PNG • Tamaño < 10MB</div>
+                </div>
+                
+                <div class="branches">
+                    <div class="branch">
+                        <div class="branch-label error">✗ NO</div>
+                        <div class="arrow">↓</div>
+                        <div class="step error-step" onclick="showInfo('error-format', this)">
+                            <div class="step-number">❌</div>
+                            <div class="step-icon">⚠️</div>
+                            <div class="step-title">Error: Formato inválido</div>
+                            <div class="step-desc">Mostrar mensaje al usuario</div>
+                        </div>
+                    </div>
+                    
+                    <div class="branch">
+                        <div class="branch-label success">✓ SÍ</div>
+                        <div class="arrow">↓</div>
+                        <div class="step success-step" onclick="showInfo('save-file', this)">
+                            <div class="step-number">2</div>
+                            <div class="step-icon">💾</div>
+                            <div class="step-title">Guardar archivo</div>
+                            <div class="step-desc">Storage S3 + Generar hash SHA-256</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Paso 3: OCR -->
+                <div class="step" onclick="showInfo('ocr', this)">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">🔍</div>
+                    <div class="step-title">OCR - Extracción de texto</div>
+                    <div class="step-desc">Google Vision API • Texto + coordenadas</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Paso 4: IA -->
+                <div class="step" onclick="showInfo('ia', this)">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">🤖</div>
+                    <div class="step-title">IA - Extracción estructurada</div>
+                    <div class="step-desc">LLM (GPT-4) • Prompt estructurado → JSON</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Paso 5: Validación -->
+                <div class="step decision-box" onclick="showInfo('decision', this)">
+                    <div class="step-number">?</div>
+                    <div class="step-icon">🔀</div>
+                    <div class="step-title">¿Validación OK?</div>
+                    <div class="step-desc">Total = Base + IVA • Fecha válida • IVA 21/10/4%</div>
+                </div>
+                
+                <!-- Ramas de validación -->
+                <div class="branches">
+                    <!-- Rama ERROR -->
+                    <div class="branch">
+                        <div class="branch-label error">✗ FALLA</div>
+                        <div class="arrow">↓</div>
+                        
+                        <div class="step error-step" onclick="showInfo('review', this)">
+                            <div class="step-number">5b</div>
+                            <div class="step-icon">⚠️</div>
+                            <div class="step-title">Marcar para revisión</div>
+                            <div class="step-desc">Cola HITL • Confidence < 0.85</div>
+                        </div>
+                        
+                        <div class="arrow">↓</div>
+                        
+                        <div class="step error-step" onclick="showInfo('manual', this)">
+                            <div class="step-number">6b</div>
+                            <div class="step-icon">✏️</div>
+                            <div class="step-title">Usuario corrige</div>
+                            <div class="step-desc">Vista previa PDF + Campos editables</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rama ÉXITO -->
+                    <div class="branch">
+                        <div class="branch-label success">✓ TODO OK</div>
+                        <div class="arrow">↓</div>
+                        
+                        <div class="step success-step" onclick="showInfo('save', this)">
+                            <div class="step-number">5</div>
+                            <div class="step-icon">💾</div>
+                            <div class="step-title">Guardar en DB</div>
+                            <div class="step-desc">PostgreSQL • tabla invoices + archivo</div>
+                        </div>
+                        
+                        <div class="arrow">↓</div>
+                        
+                        <div class="step success-step" onclick="showInfo('classify', this)">
+                            <div class="step-number">6</div>
+                            <div class="step-icon">🏷️</div>
+                            <div class="step-title">Clasificar factura</div>
+                            <div class="step-desc">Emitida → IVA devengado<br>Recibida → IVA soportado</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Convergencia: Bandeja -->
+                <div class="step" onclick="showInfo('bandeja', this)">
+                    <div class="step-number">7</div>
+                    <div class="step-icon">📋</div>
+                    <div class="step-title">Bandeja de facturas</div>
+                    <div class="step-desc">Procesadas ✅ • Para revisar ⚠️</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Paso 8: Motor fiscal -->
+                <div class="step" onclick="showInfo('calculate', this)">
+                    <div class="step-number">8</div>
+                    <div class="step-icon">📊</div>
+                    <div class="step-title">Motor Fiscal - Cálculo trimestral</div>
+                    <div class="step-desc">IVA devengado - IVA soportado = Cuota a ingresar</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Paso 9: Pantalla resumen -->
+                <div class="step" onclick="showInfo('summary', this)">
+                    <div class="step-number">9</div>
+                    <div class="step-icon">📄</div>
+                    <div class="step-title">Pantalla resumen trimestral</div>
+                    <div class="step-desc">Tarjetas con IVA • Tabla facturas • Botón descargar</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Paso 10: Generar reporte -->
+                <div class="step" onclick="showInfo('report', this)">
+                    <div class="step-number">10</div>
+                    <div class="step-icon">📥</div>
+                    <div class="step-title">Generar reporte</div>
+                    <div class="step-desc">Excel: Resumen 303 + Lista facturas + Desglose IVA</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                
+                <!-- Final -->
+                <div class="step final-step" onclick="showInfo('download', this)">
+                    <div class="step-number">11</div>
+                    <div class="step-icon">🎉</div>
+                    <div class="step-title">¡Descarga lista!</div>
+                    <div class="step-desc">Archivo Excel/PDF listo • "Cálculo orientativo para tu gestor"</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-title" id="infoTitle"></div>
+        <div class="info-content" id="infoContent"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400">
+                <a href="workflow.html" class="text-indigo-400 hover:text-indigo-300">← Volver a selección de flujos</a>
+            </p>
+            <p class="text-gray-500 text-sm mt-4">&copy; 2025 Fiscal.ai. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        const infoData = {
+            start: {
+                title: "🏠 Inicio",
+                content: "Usuario accede a la aplicación. Dos opciones principales: subir nuevas facturas o revisar el trimestre actual."
+            },
+            upload: {
+                title: "📤 Upload de factura",
+                content: "El usuario arrastra o selecciona archivos. Formatos aceptados: PDF, JPG, PNG. Tamaño máximo: 10MB por archivo."
+            },
+            validate: {
+                title: "✅ Validación de archivo",
+                content: "Se verifica formato correcto, tamaño dentro del límite y se calcula hash SHA-256 para detectar duplicados."
+            },
+            'error-format': {
+                title: "❌ Error de formato",
+                content: "Si el archivo no cumple requisitos, se muestra mensaje de error al usuario indicando el problema específico."
+            },
+            'save-file': {
+                title: "💾 Guardar archivo",
+                content: "Archivo almacenado en S3 (o storage compatible) con cifrado at-rest. Se genera hash para deduplicación."
+            },
+            ocr: {
+                title: "🔍 OCR - Extracción de texto",
+                content: "Google Vision API o Mindee extraen todo el texto del documento más las coordenadas de cada palabra para entender el layout."
+            },
+            ia: {
+                title: "🤖 IA - Extracción con LLM",
+                content: "GPT-4 recibe el texto OCR y devuelve JSON estructurado: proveedor, NIF, fecha, base, IVA (tipo/cuota), total, confidence score."
+            },
+            decision: {
+                title: "🔀 Punto de validación crítico",
+                content: "Se validan 3 reglas:<br>1. Total = Base + IVA (±0.02€)<br>2. Fecha válida<br>3. Tipo IVA es 21%, 10% o 4%<br><br>Si todas pasan → OK. Si falla alguna → Revisión."
+            },
+            review: {
+                title: "⚠️ Cola de revisión HITL",
+                content: "Human-in-the-loop: facturas con baja confianza (<0.85) se marcan para revisión. Sistema indica qué campos son dudosos."
+            },
+            manual: {
+                title: "✏️ Corrección manual",
+                content: "Usuario ve PDF junto a campos extraídos. Puede editar cualquier campo incorrecto. Estado cambia a CORRECTED → VALIDATED tras guardar."
+            },
+            save: {
+                title: "💾 Almacenar en base de datos",
+                content: "Factura validada se guarda en PostgreSQL (tabla invoices). Se registra: user_id, timestamp, estado=VALIDATED, archivo original en S3."
+            },
+            classify: {
+                title: "🏷️ Clasificación fiscal",
+                content: "Se determina tipo de factura:<br>• Emitida (venta) → IVA devengado<br>• Recibida (compra) → IVA soportado<br><br>Se actualiza total del trimestre automáticamente."
+            },
+            bandeja: {
+                title: "📋 Bandeja de facturas",
+                content: "Vista consolidada: facturas procesadas ✅ y pendientes de revisión ⚠️. Usuario puede filtrar, buscar y acceder a cada factura."
+            },
+            calculate: {
+                title: "📊 Motor fiscal",
+                content: "Se suman todas las facturas del trimestre:<br>• IVA devengado (ventas)<br>• IVA soportado (compras)<br>• Resultado = cuota a ingresar<br><br>Desglose por tipo: 21%, 10%, 4%."
+            },
+            summary: {
+                title: "📄 Pantalla resumen",
+                content: "Dashboard con tarjetas visuales: IVA devengado, IVA soportado, resultado. Tabla completa de facturas. Botón para descargar Excel/PDF."
+            },
+            report: {
+                title: "📥 Generación de reporte",
+                content: "Se crea Excel con:<br>• Resumen Modelo 303<br>• Lista de facturas procesadas<br>• Desglose por tipo de IVA<br><br>Opcional: PDF con mismo contenido formateado."
+            },
+            download: {
+                title: "🎉 Descarga final",
+                content: "Usuario obtiene archivos listos para:<br>• Presentar en AEAT con certificado digital<br>• Enviar a gestor<br>• Guardar como respaldo<br><br>Disclaimer: 'Cálculo orientativo'."
+            }
+        };
+        
+        let currentActive = null;
+        
+        function showInfo(key, element) {
+            const panel = document.getElementById('infoPanel');
+            const title = document.getElementById('infoTitle');
+            const content = document.getElementById('infoContent');
+            
+            if (currentActive) {
+                currentActive.classList.remove('active');
+            }
+            
+            element.classList.add('active');
+            currentActive = element;
+            
+            title.textContent = infoData[key].title;
+            content.innerHTML = infoData[key].content;
+            
+            panel.classList.add('show');
+            
+            setTimeout(() => {
+                panel.classList.remove('show');
+                element.classList.remove('active');
+                currentActive = null;
+            }, 6000);
+        }
+    </script>
+</body>
+</html>
