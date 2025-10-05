@@ -69,23 +69,6 @@
 		    </div>
 		</nav>
 		
-		<!-- Script para toggle del menú móvil (antes de cerrar </body>) -->
-		<script>
-		    document.getElementById('mobile-menu-btn').addEventListener('click', function() {
-		        const menu = document.getElementById('mobile-menu');
-		        menu.classList.toggle('hidden');
-		        
-		        // Cambiar icono hamburguesa <-> X
-		        const icon = this.querySelector('i');
-		        if (menu.classList.contains('hidden')) {
-		            icon.className = 'fas fa-bars text-2xl';
-		        } else {
-		            icon.className = 'fas fa-times text-2xl';
-		        }
-		    });
-		</script>
-
-
 	
     <section class="py-8 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -337,9 +320,27 @@
             </div>
         </div>
     </section>
+
+	    <!-- Script para toggle del menú móvil (antes de cerrar </body>) -->
+    <script>
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            
+            const icon = this.querySelector('i');
+            if (menu.classList.contains('hidden')) {
+                icon.className = 'fas fa-bars text-2xl';
+            } else {
+                icon.className = 'fas fa-times text-2xl';
+            }
+        });
+    </script>
+
+	
 </body>
 
 </html>
+
 
 
 
