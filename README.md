@@ -1,5 +1,6 @@
-# Fiscal.ai
-Web Page of Fiscal.AI
+# FiscalPro.ai
 
-https://oriolgilabertlopez.github.io/Fiscalpro.ai/index.html
+
+Web: https://oriolgilabertlopez.github.io/Fiscalpro.ai/index.html
+One-pager POC: https://oriolgilabertlopez.github.io/Fiscalpro.ai/poc-azure/
 
